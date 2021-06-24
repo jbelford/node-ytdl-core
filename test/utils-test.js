@@ -75,15 +75,36 @@ describe('utils.cutAfterJSON()', () => {
       '[{"a": 1}, {"b": 2}]',
     );
   });
+  it('Works when starting index is provided', () => {
+    const example = 'sofj1208ajldkfjAJ       [{"a": 1}, {"b": 2}]abcd';
+    const startIdx = example.indexOf('[');
+    assert.strictEqual(
+      utils.cutAfterJSON(example, startIdx),
+      '[{"a": 1}, {"b": 2}]',
+    );
+  });
   it('Returns an error when not beginning with [ or {', () => {
     assert.throws(() => {
       utils.cutAfterJSON('abcd]}');
+    }, /Can't cut unsupported JSON \(need to begin with \[ or { \) but got: ./);
+    assert.throws(() => {
+      utils.cutAfterJSON('{"a": [abcd]}', 1);
     }, /Can't cut unsupported JSON \(need to begin with \[ or { \) but got: ./);
   });
   it('Returns an error when missing closing bracket', () => {
     assert.throws(() => {
       utils.cutAfterJSON('{"a": 1,{ "b": 1}');
     }, /Can't cut unsupported JSON \(no matching closing bracket found\)/);
+  });
+  it('Returns an error when json has mismatch of closing square bracket', () => {
+    assert.throws(() => {
+      utils.cutAfterJSON('{ "a": 1, "b": { "d": [1] ], "c": 2 }');
+    }, /should have been '}'/);
+  });
+  it('Returns an error when json has mismatch of closing curly bracket', () => {
+    assert.throws(() => {
+      utils.cutAfterJSON('{ "a": 1, "b": { "d": [1} ], "c": 2 }');
+    }, /should have been ']'/);
   });
 });
 
